@@ -1,0 +1,907 @@
+<?php
+include_once($_SERVER["DOCUMENT_ROOT"] . "/regional7/koneksi_db.php");
+include_once 'opcurl_setting.php';
+
+// ======================================================================
+// general declaration
+// ======================================================================
+
+$cookie = "cookies.txt";
+
+$f1_svn = "update_silver.csv";
+$f2_svn = "update_titanium.csv";
+$f3_svn = "update_platinum.csv";
+$f4_svn = "update_business.csv";
+$f5_svn = "update_enterprise.csv";
+$f6_svn = "update_hc.csv";
+
+// ======================================================================
+// login declaration
+// ======================================================================
+
+$nona_user = NONA_USER;
+$nona_pass = NONA_PASS;
+
+// unimportant decl
+$redirect = "http://nonatero.telkom.co.id/ggn_open_gab_new21.php";
+$login = "Login%20%BB";
+
+// post data
+$nona_login_post = "entered_user=$nona_user&entered_password=$nona_pass&redirect_to=$redirect&login=$login";
+
+// ======================================================================
+// fetch data declaration
+// ======================================================================
+
+//unimportant
+$f1_vf = "Detil_ALL_GGN_Berlangsung_ALL_SEGMEN_TOTAL";
+$f2_vf = "Detil_ALL_GGN_Berlangsung_ALL_SEGMEN_TOTAL";
+$f3_vf = "Detil_ALL_GGN_Berlangsung_ALL_SEGMEN_TOTAL";
+$f4_vf = "Detil_ALL_GGN_Berlangsung_ALL_SEGMEN_TOTAL";
+$f5_vf = "Detil_ALL_GGN_Berlangsung_ALL_SEGMEN_TOTAL";
+$f6_vf = "Detil_ALL_GGN_Berlangsung_ALL_SEGMEN_TOTAL";
+
+$f1_vh = "Detil ALL - GGN Berlangsung - ALL SEGMEN - TOTAL";
+$f2_vh = "Detil ALL - GGN Berlangsung - ALL SEGMEN - TOTAL";
+$f3_vh = "Detil ALL - GGN Berlangsung - ALL SEGMEN - TOTAL";
+$f4_vh = "Detil ALL - GGN Berlangsung - ALL SEGMEN - TOTAL";
+$f5_vh = "Detil ALL - GGN Berlangsung - ALL SEGMEN - TOTAL";
+$f6_vh = "Detil_ALL_GGN_Berlangsung_ALL_SEGMEN_TOTAL";
+
+$f1_x = "25";
+$f2_x = "27";
+$f3_x = "18";
+$f4_x = "24";
+$f5_x = "22";
+$f6_x = "30";
+
+$f1_y = "35";
+$f2_y = "26";
+$f3_y = "28";
+$f4_y = "23";
+$f5_y = "16";
+$f6_y = "21";
+
+$f1_q = "SELECT ROW_NUMBER() OVER (ORDER BY TROUBLE_OPENTIME ASC) NO,
+witel, KANDATEL_NEW3 kandatel, cmdf, rk,cprod,nd_telp,nd_int,paket_int,paket_iptv,GAUL_B0,GAUL_B1,GAUL_B2,GAUL30,GAUL30_BACK,LAPUL,trouble_no, trouble_opentime, headline, keluhan_desc, status, jam, hari,emosi_plg,decode(cprod,'1','TELEPON','11','INTERNET','8','IPTV') as PRODUK_GGN,TIPE_TIKET,SMS_OPEN,SMS_BACKEND,SMS_RESOLVED,EMAIL_OPEN,EMAIL_BACKEND,EMAIL_RESOLVED,TROUBLE_CLOSED_GROUP,
+LOKER_DISPATCH,JML_LAPUL,CHANNEL
+		 from (
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        CASE 
+        WHEN A.TROUBLE_STATUS_ID='1' THEN 'OPEN'
+        WHEN A.TROUBLE_STATUS_ID='2' THEN 'PROSES'
+        WHEN A.TROUBLE_STATUS_ID='4' THEN 'CUSTOMER_PENDING'
+        WHEN A.TROUBLE_STATUS_ID='6' THEN 'TELKOM_PENDING'
+        END AS STATUS,ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,nvl(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		DECODE(MAX_VOKAL_ID,'1','Ramah','2','Nada tegas dan masih bisa diajak dialog','3','Marah besar','4','Mengancam memasukkan ke koran','-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,'' as SMS_OPEN,'' as SMS_BACKEND,'' as SMS_RESOLVED,'' as EMAIL_OPEN,'' as EMAIL_BACKEND,'' as EMAIL_RESOLVED,CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,'' as TROUBLE_CLOSED_GROUP_ID,'' as TROUBLE_CLOSED_GROUP,'' as TROUBLE_STATUS_DATE,'' as loker_dispatch,
+		nvl(num_lapul,0) as jml_lapul,decode(upper(channel),'PHONE IN','147','WEB IN','MY TELKOM','WALK IN','PLASA','SOCIAL MEDIA','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_NT1 A
+        WHERE a.DATE_CLOSE IS NULL
+AND (a.WITEL_ID_NEW3 BETWEEN '01' AND '61')
+and cprod in ('1','11','8')
+and is_gamas='0'
+AND SUBSTR(SEGMEN_PLG_REV,1,1)='S'  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT in ('DCS','DTF')   
+    
+union all
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        A.TROUBLE_STATUS_ID AS STATUS,
+		ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,NVL(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		NVL(MAX_VOKAL_ID,'-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,to_char(SMS_OPEN,'DD-MM-YYYY HH24:MI:SS') as SMS_OPEN,
+to_char(SMS_BACKEND,'DD-MM-YYYY HH24:MI:SS') as sms_backend,
+to_char(sms_resolved,'DD-MM-YYYY HH24:MI:SS') as sms_resolved,
+to_char(email_open,'DD-MM-YYYY HH24:MI:SS') as email_open,
+to_char(email_backend,'DD-MM-YYYY HH24:MI:SS') as email_backend,
+to_char(email_resolved,'DD-MM-YYYY HH24:MI:SS') as EMAIL_RESOLVED,
+CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,TROUBLE_CLOSED_GROUP_ID,substr(TROUBLE_CLOSED_GROUP,8,100) as trouble_closed_group,to_char(TROUBLE_STATUS_DATE,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_STATUS_DATE,loker_dispatch_group
+		as loker_dispatch,nvl(num_lapul,0) as jml_lapul,decode(channel,'1','MEDIA SOSIAL','2','147','3','MY TELKOM','4','PLASA','5','E-MAIL','6','MY INDIHOME','8','PROACTIVE WIFI','9','PROACTIVE IBOOSTER','10','C4 DES','11','TAM DBS','12','OCC DWS','14','MSOC DSS','15','PROACTIVE SMART SOLVER','16','MY SOLUTION CUSTOMER','17','AM TOOLS','18','IDEAS','19','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_CX_NT1 A
+        WHERE a.trouble_status_id in ('QUEUED','BACKEND','NEW')
+and cprod in ('1','11','8')  and is_gamas='0' 
+and (WITEL_ID_NEW3 between '01' and '61')
+AND SUBSTR(SEGMEN_PLG_REV,1,1)='S'  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT in ('DCS','DTF')       
+        ) data
+		 where 1=1";
+
+$f2_q = "SELECT ROW_NUMBER() OVER (ORDER BY TROUBLE_OPENTIME ASC) NO,
+witel, KANDATEL_NEW3 kandatel, cmdf, rk,cprod,nd_telp,nd_int,paket_int,paket_iptv,GAUL_B0,GAUL_B1,GAUL_B2,GAUL30,GAUL30_BACK,LAPUL,trouble_no, trouble_opentime, headline, keluhan_desc, status, jam, hari,emosi_plg,decode(cprod,'1','TELEPON','11','INTERNET','8','IPTV') as PRODUK_GGN,TIPE_TIKET,SMS_OPEN,SMS_BACKEND,SMS_RESOLVED,EMAIL_OPEN,EMAIL_BACKEND,EMAIL_RESOLVED,TROUBLE_CLOSED_GROUP,
+LOKER_DISPATCH,JML_LAPUL,CHANNEL
+		 from (
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        CASE 
+        WHEN A.TROUBLE_STATUS_ID='1' THEN 'OPEN'
+        WHEN A.TROUBLE_STATUS_ID='2' THEN 'PROSES'
+        WHEN A.TROUBLE_STATUS_ID='4' THEN 'CUSTOMER_PENDING'
+        WHEN A.TROUBLE_STATUS_ID='6' THEN 'TELKOM_PENDING'
+        END AS STATUS,ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,nvl(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		DECODE(MAX_VOKAL_ID,'1','Ramah','2','Nada tegas dan masih bisa diajak dialog','3','Marah besar','4','Mengancam memasukkan ke koran','-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,'' as SMS_OPEN,'' as SMS_BACKEND,'' as SMS_RESOLVED,'' as EMAIL_OPEN,'' as EMAIL_BACKEND,'' as EMAIL_RESOLVED,CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,'' as TROUBLE_CLOSED_GROUP_ID,'' as TROUBLE_CLOSED_GROUP,'' as TROUBLE_STATUS_DATE,'' as loker_dispatch,
+		nvl(num_lapul,0) as jml_lapul,decode(upper(channel),'PHONE IN','147','WEB IN','MY TELKOM','WALK IN','PLASA','SOCIAL MEDIA','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_NT1 A
+        WHERE a.DATE_CLOSE IS NULL
+AND (a.WITEL_ID_NEW3 BETWEEN '01' AND '61')
+and cprod in ('1','11','8')
+and is_gamas='0'
+AND SUBSTR(SEGMEN_PLG_REV,1,1) in ('T','G')  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT in ('DCS','DTF')   
+    
+union all
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        A.TROUBLE_STATUS_ID AS STATUS,
+		ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,NVL(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		NVL(MAX_VOKAL_ID,'-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,to_char(SMS_OPEN,'DD-MM-YYYY HH24:MI:SS') as SMS_OPEN,
+to_char(SMS_BACKEND,'DD-MM-YYYY HH24:MI:SS') as sms_backend,
+to_char(sms_resolved,'DD-MM-YYYY HH24:MI:SS') as sms_resolved,
+to_char(email_open,'DD-MM-YYYY HH24:MI:SS') as email_open,
+to_char(email_backend,'DD-MM-YYYY HH24:MI:SS') as email_backend,
+to_char(email_resolved,'DD-MM-YYYY HH24:MI:SS') as EMAIL_RESOLVED,
+CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,TROUBLE_CLOSED_GROUP_ID,substr(TROUBLE_CLOSED_GROUP,8,100) as trouble_closed_group,to_char(TROUBLE_STATUS_DATE,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_STATUS_DATE,loker_dispatch_group
+		as loker_dispatch,nvl(num_lapul,0) as jml_lapul,decode(channel,'1','MEDIA SOSIAL','2','147','3','MY TELKOM','4','PLASA','5','E-MAIL','6','MY INDIHOME','8','PROACTIVE WIFI','9','PROACTIVE IBOOSTER','10','C4 DES','11','TAM DBS','12','OCC DWS','14','MSOC DSS','15','PROACTIVE SMART SOLVER','16','MY SOLUTION CUSTOMER','17','AM TOOLS','18','IDEAS','19','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_CX_NT1 A
+        WHERE a.trouble_status_id in ('QUEUED','BACKEND','NEW')
+and cprod in ('1','11','8')  and is_gamas='0' 
+and (WITEL_ID_NEW3 between '01' and '61')
+AND SUBSTR(SEGMEN_PLG_REV,1,1) in ('T','G')  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT in ('DCS','DTF')       
+        ) data
+		 where 1=1";
+
+$f3_q = "SELECT ROW_NUMBER() OVER (ORDER BY TROUBLE_OPENTIME ASC) NO,
+witel, KANDATEL_NEW3 kandatel, cmdf, rk,cprod,nd_telp,nd_int,paket_int,paket_iptv,GAUL_B0,GAUL_B1,GAUL_B2,GAUL30,GAUL30_BACK,LAPUL,trouble_no, trouble_opentime, headline, keluhan_desc, status, jam, hari,emosi_plg,decode(cprod,'1','TELEPON','11','INTERNET','8','IPTV') as PRODUK_GGN,TIPE_TIKET,SMS_OPEN,SMS_BACKEND,SMS_RESOLVED,EMAIL_OPEN,EMAIL_BACKEND,EMAIL_RESOLVED,TROUBLE_CLOSED_GROUP,
+LOKER_DISPATCH,JML_LAPUL,CHANNEL
+		 from (
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        CASE 
+        WHEN A.TROUBLE_STATUS_ID='1' THEN 'OPEN'
+        WHEN A.TROUBLE_STATUS_ID='2' THEN 'PROSES'
+        WHEN A.TROUBLE_STATUS_ID='4' THEN 'CUSTOMER_PENDING'
+        WHEN A.TROUBLE_STATUS_ID='6' THEN 'TELKOM_PENDING'
+        END AS STATUS,ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,nvl(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		DECODE(MAX_VOKAL_ID,'1','Ramah','2','Nada tegas dan masih bisa diajak dialog','3','Marah besar','4','Mengancam memasukkan ke koran','-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,'' as SMS_OPEN,'' as SMS_BACKEND,'' as SMS_RESOLVED,'' as EMAIL_OPEN,'' as EMAIL_BACKEND,'' as EMAIL_RESOLVED,CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,'' as TROUBLE_CLOSED_GROUP_ID,'' as TROUBLE_CLOSED_GROUP,'' as TROUBLE_STATUS_DATE,'' as loker_dispatch,
+		nvl(num_lapul,0) as jml_lapul,decode(upper(channel),'PHONE IN','147','WEB IN','MY TELKOM','WALK IN','PLASA','SOCIAL MEDIA','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_NT1 A
+        WHERE a.DATE_CLOSE IS NULL
+AND (a.WITEL_ID_NEW3 BETWEEN '01' AND '61')
+and cprod in ('1','11','8')
+and is_gamas='0'
+AND SUBSTR(SEGMEN_PLG_REV,1,1)='P'  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT IN ('DCS','DTF')   
+    
+union all
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        A.TROUBLE_STATUS_ID AS STATUS,
+		ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,NVL(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		NVL(MAX_VOKAL_ID,'-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,to_char(SMS_OPEN,'DD-MM-YYYY HH24:MI:SS') as SMS_OPEN,
+to_char(SMS_BACKEND,'DD-MM-YYYY HH24:MI:SS') as sms_backend,
+to_char(sms_resolved,'DD-MM-YYYY HH24:MI:SS') as sms_resolved,
+to_char(email_open,'DD-MM-YYYY HH24:MI:SS') as email_open,
+to_char(email_backend,'DD-MM-YYYY HH24:MI:SS') as email_backend,
+to_char(email_resolved,'DD-MM-YYYY HH24:MI:SS') as EMAIL_RESOLVED,
+CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,TROUBLE_CLOSED_GROUP_ID,substr(TROUBLE_CLOSED_GROUP,8,100) as trouble_closed_group,to_char(TROUBLE_STATUS_DATE,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_STATUS_DATE,loker_dispatch_group
+		as loker_dispatch,nvl(num_lapul,0) as jml_lapul,decode(channel,'1','MEDIA SOSIAL','2','147','3','MY TELKOM','4','PLASA','5','E-MAIL','6','MY INDIHOME','8','PROACTIVE WIFI','9','PROACTIVE IBOOSTER','10','C4 DES','11','TAM DBS','12','OCC DWS','14','MSOC DSS','15','PROACTIVE SMART SOLVER','16','MY SOLUTION CUSTOMER','17','AM TOOLS','18','IDEAS','19','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_CX_NT1 A
+        WHERE a.trouble_status_id in ('QUEUED','BACKEND','NEW')
+and cprod in ('1','11','8')  and is_gamas='0' 
+and (WITEL_ID_NEW3 between '01' and '61')
+AND SUBSTR(SEGMEN_PLG_REV,1,1)='P'  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT IN ('DCS','DTF')       
+        ) data
+		 where 1=1";
+		 
+$f4_q = "SELECT ROW_NUMBER() OVER (ORDER BY TROUBLE_OPENTIME ASC) NO,
+witel, KANDATEL_NEW3 kandatel, cmdf, rk,cprod,nd_telp,nd_int,paket_int,paket_iptv,GAUL_B0,GAUL_B1,GAUL_B2,GAUL30,GAUL30_BACK,LAPUL,trouble_no, trouble_opentime, headline, keluhan_desc, status, jam, hari,emosi_plg,decode(cprod,'1','TELEPON','11','INTERNET','8','IPTV') as PRODUK_GGN,TIPE_TIKET,SMS_OPEN,SMS_BACKEND,SMS_RESOLVED,EMAIL_OPEN,EMAIL_BACKEND,EMAIL_RESOLVED,TROUBLE_CLOSED_GROUP,
+LOKER_DISPATCH,JML_LAPUL,CHANNEL
+		 from (
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        CASE 
+        WHEN A.TROUBLE_STATUS_ID='1' THEN 'OPEN'
+        WHEN A.TROUBLE_STATUS_ID='2' THEN 'PROSES'
+        WHEN A.TROUBLE_STATUS_ID='4' THEN 'CUSTOMER_PENDING'
+        WHEN A.TROUBLE_STATUS_ID='6' THEN 'TELKOM_PENDING'
+        END AS STATUS,ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,nvl(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		DECODE(MAX_VOKAL_ID,'1','Ramah','2','Nada tegas dan masih bisa diajak dialog','3','Marah besar','4','Mengancam memasukkan ke koran','-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,'' as SMS_OPEN,'' as SMS_BACKEND,'' as SMS_RESOLVED,'' as EMAIL_OPEN,'' as EMAIL_BACKEND,'' as EMAIL_RESOLVED,CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,'' as TROUBLE_CLOSED_GROUP_ID,'' as TROUBLE_CLOSED_GROUP,'' as TROUBLE_STATUS_DATE,'' as loker_dispatch,
+		nvl(num_lapul,0) as jml_lapul,decode(upper(channel),'PHONE IN','147','WEB IN','MY TELKOM','WALK IN','PLASA','SOCIAL MEDIA','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_NT1 A
+        WHERE a.DATE_CLOSE IS NULL
+AND (a.WITEL_ID_NEW3 BETWEEN '01' AND '61')
+and cprod in ('1','11','8')
+and is_gamas='0'
+  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT='DBS'   
+    
+union all
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        A.TROUBLE_STATUS_ID AS STATUS,
+		ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,NVL(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		NVL(MAX_VOKAL_ID,'-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,to_char(SMS_OPEN,'DD-MM-YYYY HH24:MI:SS') as SMS_OPEN,
+to_char(SMS_BACKEND,'DD-MM-YYYY HH24:MI:SS') as sms_backend,
+to_char(sms_resolved,'DD-MM-YYYY HH24:MI:SS') as sms_resolved,
+to_char(email_open,'DD-MM-YYYY HH24:MI:SS') as email_open,
+to_char(email_backend,'DD-MM-YYYY HH24:MI:SS') as email_backend,
+to_char(email_resolved,'DD-MM-YYYY HH24:MI:SS') as EMAIL_RESOLVED,
+CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,TROUBLE_CLOSED_GROUP_ID,substr(TROUBLE_CLOSED_GROUP,8,100) as trouble_closed_group,to_char(TROUBLE_STATUS_DATE,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_STATUS_DATE,loker_dispatch_group
+		as loker_dispatch,nvl(num_lapul,0) as jml_lapul,decode(channel,'1','MEDIA SOSIAL','2','147','3','MY TELKOM','4','PLASA','5','E-MAIL','6','MY INDIHOME','8','PROACTIVE WIFI','9','PROACTIVE IBOOSTER','10','C4 DES','11','TAM DBS','12','OCC DWS','14','MSOC DSS','15','PROACTIVE SMART SOLVER','16','MY SOLUTION CUSTOMER','17','AM TOOLS','18','IDEAS','19','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_CX_NT1 A
+        WHERE a.trouble_status_id in ('QUEUED','BACKEND','NEW')
+and cprod in ('1','11','8')  and is_gamas='0' 
+and (WITEL_ID_NEW3 between '01' and '61')
+  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT='DBS'       
+        ) data
+		 where 1=1";
+		 
+$f5_q = "SELECT ROW_NUMBER() OVER (ORDER BY TROUBLE_OPENTIME ASC) NO,
+witel, KANDATEL_NEW3 kandatel, cmdf, rk,cprod,nd_telp,nd_int,paket_int,paket_iptv,GAUL_B0,GAUL_B1,GAUL_B2,GAUL30,GAUL30_BACK,LAPUL,trouble_no, trouble_opentime, headline, keluhan_desc, status, jam, hari,emosi_plg,decode(cprod,'1','TELEPON','11','INTERNET','8','IPTV') as PRODUK_GGN,TIPE_TIKET,SMS_OPEN,SMS_BACKEND,SMS_RESOLVED,EMAIL_OPEN,EMAIL_BACKEND,EMAIL_RESOLVED,TROUBLE_CLOSED_GROUP,
+LOKER_DISPATCH,JML_LAPUL,CHANNEL
+		 from (
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        CASE 
+        WHEN A.TROUBLE_STATUS_ID='1' THEN 'OPEN'
+        WHEN A.TROUBLE_STATUS_ID='2' THEN 'PROSES'
+        WHEN A.TROUBLE_STATUS_ID='4' THEN 'CUSTOMER_PENDING'
+        WHEN A.TROUBLE_STATUS_ID='6' THEN 'TELKOM_PENDING'
+        END AS STATUS,ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,nvl(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		DECODE(MAX_VOKAL_ID,'1','Ramah','2','Nada tegas dan masih bisa diajak dialog','3','Marah besar','4','Mengancam memasukkan ke koran','-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,'' as SMS_OPEN,'' as SMS_BACKEND,'' as SMS_RESOLVED,'' as EMAIL_OPEN,'' as EMAIL_BACKEND,'' as EMAIL_RESOLVED,CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,'' as TROUBLE_CLOSED_GROUP_ID,'' as TROUBLE_CLOSED_GROUP,'' as TROUBLE_STATUS_DATE,'' as loker_dispatch,
+		nvl(num_lapul,0) as jml_lapul,decode(upper(channel),'PHONE IN','147','WEB IN','MY TELKOM','WALK IN','PLASA','SOCIAL MEDIA','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_NT1 A
+        WHERE a.DATE_CLOSE IS NULL
+AND (a.WITEL_ID_NEW3 BETWEEN '01' AND '61')
+and cprod in ('1','11','8')
+and is_gamas='0'
+  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT in ('CIS','DES','DGS')   
+    
+union all
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        A.TROUBLE_STATUS_ID AS STATUS,
+		ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,NVL(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		NVL(MAX_VOKAL_ID,'-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,to_char(SMS_OPEN,'DD-MM-YYYY HH24:MI:SS') as SMS_OPEN,
+to_char(SMS_BACKEND,'DD-MM-YYYY HH24:MI:SS') as sms_backend,
+to_char(sms_resolved,'DD-MM-YYYY HH24:MI:SS') as sms_resolved,
+to_char(email_open,'DD-MM-YYYY HH24:MI:SS') as email_open,
+to_char(email_backend,'DD-MM-YYYY HH24:MI:SS') as email_backend,
+to_char(email_resolved,'DD-MM-YYYY HH24:MI:SS') as EMAIL_RESOLVED,
+CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,TROUBLE_CLOSED_GROUP_ID,substr(TROUBLE_CLOSED_GROUP,8,100) as trouble_closed_group,to_char(TROUBLE_STATUS_DATE,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_STATUS_DATE,loker_dispatch_group
+		as loker_dispatch,nvl(num_lapul,0) as jml_lapul,decode(channel,'1','MEDIA SOSIAL','2','147','3','MY TELKOM','4','PLASA','5','E-MAIL','6','MY INDIHOME','8','PROACTIVE WIFI','9','PROACTIVE IBOOSTER','10','C4 DES','11','TAM DBS','12','OCC DWS','14','MSOC DSS','15','PROACTIVE SMART SOLVER','16','MY SOLUTION CUSTOMER','17','AM TOOLS','18','IDEAS','19','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_CX_NT1 A
+        WHERE a.trouble_status_id in ('QUEUED','BACKEND','NEW')
+and cprod in ('1','11','8')  and is_gamas='0' 
+and (WITEL_ID_NEW3 between '01' and '61')
+  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT in ('CIS','DES','DGS')       
+        ) data
+		 where 1=1";
+		 
+$f6_q = "SELECT ROW_NUMBER() OVER (ORDER BY TROUBLE_OPENTIME ASC) NO,
+witel, KANDATEL_NEW3 kandatel, cmdf, rk,cprod,nd_telp,nd_int,paket_int,paket_iptv,GAUL_B0,GAUL_B1,GAUL_B2,GAUL30,GAUL30_BACK,LAPUL,trouble_no, trouble_opentime, headline, keluhan_desc, status, jam, hari,emosi_plg,decode(cprod,'1','TELEPON','11','INTERNET','8','IPTV') as PRODUK_GGN,TIPE_TIKET,SMS_OPEN,SMS_BACKEND,SMS_RESOLVED,EMAIL_OPEN,EMAIL_BACKEND,EMAIL_RESOLVED,TROUBLE_CLOSED_GROUP,
+LOKER_DISPATCH,JML_LAPUL,CHANNEL
+		 from (
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        CASE 
+        WHEN A.TROUBLE_STATUS_ID='1' THEN 'OPEN'
+        WHEN A.TROUBLE_STATUS_ID='2' THEN 'PROSES'
+        WHEN A.TROUBLE_STATUS_ID='4' THEN 'CUSTOMER_PENDING'
+        WHEN A.TROUBLE_STATUS_ID='6' THEN 'TELKOM_PENDING'
+        END AS STATUS,ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,nvl(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		DECODE(MAX_VOKAL_ID,'1','Ramah','2','Nada tegas dan masih bisa diajak dialog','3','Marah besar','4','Mengancam memasukkan ke koran','-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,'' as SMS_OPEN,'' as SMS_BACKEND,'' as SMS_RESOLVED,'' as EMAIL_OPEN,'' as EMAIL_BACKEND,'' as EMAIL_RESOLVED,CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,'' as TROUBLE_CLOSED_GROUP_ID,'' as TROUBLE_CLOSED_GROUP,'' as TROUBLE_STATUS_DATE,'' as loker_dispatch,
+		nvl(num_lapul,0) as jml_lapul,decode(upper(channel),'PHONE IN','147','WEB IN','MY TELKOM','WALK IN','PLASA','SOCIAL MEDIA','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_NT1 A
+        WHERE a.DATE_CLOSE IS NULL
+AND (a.WITEL_ID_NEW3 BETWEEN '01' AND '61')
+and cprod in ('1','11','8')
+and is_gamas='0'
+AND unit in ('DCS','DTF','CIS','DES','DGS','DBS')  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT is not null   
+  AND ((nvl(num_lapul,0)>3 AND FLAG_TEKNIS='1') or max_vokal_id in ('3','4'))   
+union all
+select WITEL_NEW3 as WITEL,KANDATEL_NEW3,A.CMDF,A.RK,
+ CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.ND_REFERENCE 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.TROUBLE_NUMBER
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_TELP,
+	CASE WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='1' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='11' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='1' THEN A.TROUBLE_NUMBER 
+  WHEN cprod='8' and substr(A.TROUBLE_NUMBER,1,1)='0' THEN A.ND_REFERENCE
+  ELSE A.TROUBLE_NUMBER END
+   AS ND_INT,CASE WHEN A.LART IS NULL THEN A.PAKET_SPEEDY ELSE A.LART END AS PAKET_INT,
+   A.PAKET_IPTV,A.CPROD,
+   A.TROUBLE_NO,TO_CHAR(A.TROUBLE_OPENTIME,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_OPENTIME, A.TROUBLE_HEADLINE AS HEADLINE, A.KELUHAN_DESC,
+        A.TROUBLE_STATUS_ID AS STATUS,
+		ROUND((CURRENT_DATE-A.TROUBLE_OPENTIME)*24) AS JAM ,TO_CHAR((CURRENT_DATE-A.TROUBLE_OPENTIME), '990D00')
+        AS HARI,PIC AS LOKER_GROUP,NM_PIC AS NAMA,NMITRA AS NAMA_PT, CDMA_PIC,GSM_PIC,0 AS GAUL30,NVL(NUM_LAPUL,0) AS LAPUL,
+		gaul_n as GAUL_B0,gaul_n_1 as GAUL_B1,gaul_n_2 as GAUL_B2,GAUL30_BACK,
+		NVL(MAX_VOKAL_ID,'-') as EMOSI_PLG,JENIS_GGN as TIPE_TIKET,to_char(SMS_OPEN,'DD-MM-YYYY HH24:MI:SS') as SMS_OPEN,
+to_char(SMS_BACKEND,'DD-MM-YYYY HH24:MI:SS') as sms_backend,
+to_char(sms_resolved,'DD-MM-YYYY HH24:MI:SS') as sms_resolved,
+to_char(email_open,'DD-MM-YYYY HH24:MI:SS') as email_open,
+to_char(email_backend,'DD-MM-YYYY HH24:MI:SS') as email_backend,
+to_char(email_resolved,'DD-MM-YYYY HH24:MI:SS') as EMAIL_RESOLVED,
+CASE     
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='S' AND UNIT in ('DCS','DTF') THEN 72
+            WHEN substr(A.SEGMEN_PLG_REV,1,1) in ('T','G') AND UNIT in ('DCS','DTF') THEN 48
+            WHEN substr(A.SEGMEN_PLG_REV,1,1)='P' AND UNIT in ('DCS','DTF') THEN 24
+			WHEN UNIT='DBS' THEN 12
+            WHEN UNIT in ('CIS','DES','DGS') THEN 6
+        END AS SLG,TROUBLE_CLOSED_GROUP_ID,substr(TROUBLE_CLOSED_GROUP,8,100) as trouble_closed_group,to_char(TROUBLE_STATUS_DATE,'DD-MM-YYYY HH24:MI:SS') as TROUBLE_STATUS_DATE,loker_dispatch_group
+		as loker_dispatch,nvl(num_lapul,0) as jml_lapul,decode(channel,'1','MEDIA SOSIAL','2','147','3','MY TELKOM','4','PLASA','5','E-MAIL','6','MY INDIHOME','8','PROACTIVE WIFI','9','PROACTIVE IBOOSTER','10','C4 DES','11','TAM DBS','12','OCC DWS','14','MSOC DSS','15','PROACTIVE SMART SOLVER','16','MY SOLUTION CUSTOMER','17','AM TOOLS','18','IDEAS','19','MEDIA SOSIAL','OTHERS') as channel
+        FROM FACT_FAULT_OPEN_CX_NT1 A
+        WHERE a.trouble_status_id in ('QUEUED','BACKEND','NEW')
+and cprod in ('1','11','8')  and is_gamas='0' 
+and (WITEL_ID_NEW3 between '01' and '61')
+AND unit in ('DCS','DTF','CIS','DES','DGS','DBS')  and REGIONAL_ID_NEW2='07' and WITEL_ID_NEW3='52'    AND UNIT is not null     AND ((nvl(num_lapul,0)>3 AND FLAG_TEKNIS='1') or upper(max_vokal_id) in ('MARAH'))   
+        ) data
+		 where 1=1";
+
+
+// ======================================================================
+// mysql operation declaration
+// ======================================================================
+
+$f1_t = "nona_plg_silver";
+$f2_t = "nona_plg_titanium";
+$f3_t = "nona_plg_platinum";
+$f4_t = "nona_plg_business";
+$f5_t = "nona_plg_enterprise";
+$f6_t = "nona_plg_hc";
+
+$f1_f = "../../htdocs/regional7/dashboard/". $f1_svn . "";
+$f2_f = "../../htdocs/regional7/dashboard/". $f2_svn . "";
+$f3_f = "../../htdocs/regional7/dashboard/". $f3_svn . "";
+$f4_f = "../../htdocs/regional7/dashboard/". $f4_svn . "";
+$f5_f = "../../htdocs/regional7/dashboard/". $f5_svn . "";
+$f6_f = "../../htdocs/regional7/dashboard/". $f6_svn . "";
+
+$f1_p = "vsql=$f1_q&vfile=$f1_vf&vhead=$f1_vh&tombol.x=$f1_x&tombol.y=$f1_y";
+$f2_p = "vsql=$f2_q&vfile=$f2_vf&vhead=$f2_vh&tombol.x=$f2_x&tombol.y=$f2_y";
+$f3_p = "vsql=$f3_q&vfile=$f3_vf&vhead=$f3_vh&tombol.x=$f3_x&tombol.y=$f3_y";
+$f4_p = "vsql=$f4_q&vfile=$f4_vf&vhead=$f4_vh&tombol.x=$f4_x&tombol.y=$f4_y";
+$f5_p = "vsql=$f5_q&vfile=$f5_vf&vhead=$f5_vh&tombol.x=$f5_x&tombol.y=$f5_y";
+$f6_p = "vsql=$f6_q&vfile=$f6_vf&vhead=$f6_vh&tombol.x=$f6_x&tombol.y=$f6_y";
+
+$nona_login = curl_init(); 
+curl_setopt ($nona_login, CURLOPT_URL, NONA_LOGIN_URL); 
+curl_setopt ($nona_login, CURLOPT_SSL_VERIFYPEER, FALSE); 
+curl_setopt ($nona_login, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"); 
+curl_setopt ($nona_login, CURLOPT_TIMEOUT, 60); 
+curl_setopt ($nona_login, CURLOPT_FOLLOWLOCATION, 0); 
+curl_setopt ($nona_login, CURLOPT_RETURNTRANSFER, 1); 
+curl_setopt ($nona_login, CURLOPT_COOKIEJAR, $cookie);
+curl_setopt ($nona_login, CURLOPT_COOKIEFILE, $cookie); 
+curl_setopt ($nona_login, CURLOPT_REFERER, NONA_LOGIN_URL); 
+
+curl_setopt ($nona_login, CURLOPT_POSTFIELDS, $nona_login_post); 
+curl_setopt ($nona_login, CURLOPT_POST, 1); 
+$nona_login_result = curl_exec ($nona_login);
+
+curl_close($nona_login);
+sleep(2);
+
+$f1 = curl_init(); 
+curl_setopt ($f1, CURLOPT_URL, NONA_FETCH_URL); 
+curl_setopt ($f1, CURLOPT_SSL_VERIFYPEER, FALSE); 
+curl_setopt ($f1, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"); 
+curl_setopt ($f1, CURLOPT_TIMEOUT, 60); 
+curl_setopt ($f1, CURLOPT_FOLLOWLOCATION, 0); 
+curl_setopt ($f1, CURLOPT_RETURNTRANSFER, 1); 
+curl_setopt ($f1, CURLOPT_COOKIEJAR, $cookie);
+curl_setopt ($f1, CURLOPT_COOKIEFILE, $cookie); 
+curl_setopt ($f1, CURLOPT_REFERER, NONA_FETCH_URL); 
+
+curl_setopt ($f1, CURLOPT_POSTFIELDS, $f1_p); 
+curl_setopt ($f1, CURLOPT_POST, 1); 
+$f1_result = curl_exec ($f1); 
+
+file_put_contents($f1_svn, $f1_result, LOCK_EX);
+
+$f2 = curl_init(); 
+curl_setopt ($f2, CURLOPT_URL, NONA_FETCH_URL); 
+curl_setopt ($f2, CURLOPT_SSL_VERIFYPEER, FALSE); 
+curl_setopt ($f2, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"); 
+curl_setopt ($f2, CURLOPT_TIMEOUT, 60); 
+curl_setopt ($f2, CURLOPT_FOLLOWLOCATION, 0); 
+curl_setopt ($f2, CURLOPT_RETURNTRANSFER, 1); 
+curl_setopt ($f2, CURLOPT_COOKIEJAR, $cookie);
+curl_setopt ($f2, CURLOPT_COOKIEFILE, $cookie); 
+curl_setopt ($f2, CURLOPT_REFERER, NONA_FETCH_URL); 
+
+curl_setopt ($f2, CURLOPT_POSTFIELDS, $f2_p); 
+curl_setopt ($f2, CURLOPT_POST, 1); 
+$f2_result = curl_exec ($f2); 
+
+file_put_contents($f2_svn, $f2_result, LOCK_EX);
+
+$f3 = curl_init(); 
+curl_setopt ($f3, CURLOPT_URL, NONA_FETCH_URL); 
+curl_setopt ($f3, CURLOPT_SSL_VERIFYPEER, FALSE); 
+curl_setopt ($f3, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"); 
+curl_setopt ($f3, CURLOPT_TIMEOUT, 60); 
+curl_setopt ($f3, CURLOPT_FOLLOWLOCATION, 0); 
+curl_setopt ($f3, CURLOPT_RETURNTRANSFER, 1); 
+curl_setopt ($f3, CURLOPT_COOKIEJAR, $cookie);
+curl_setopt ($f3, CURLOPT_COOKIEFILE, $cookie); 
+curl_setopt ($f3, CURLOPT_REFERER, NONA_FETCH_URL); 
+
+curl_setopt ($f3, CURLOPT_POSTFIELDS, $f3_p); 
+curl_setopt ($f3, CURLOPT_POST, 1); 
+$f3_result = curl_exec ($f3); 
+
+file_put_contents($f3_svn, $f3_result, LOCK_EX);
+
+$f4 = curl_init(); 
+curl_setopt ($f4, CURLOPT_URL, NONA_FETCH_URL); 
+curl_setopt ($f4, CURLOPT_SSL_VERIFYPEER, FALSE); 
+curl_setopt ($f4, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"); 
+curl_setopt ($f4, CURLOPT_TIMEOUT, 60); 
+curl_setopt ($f4, CURLOPT_FOLLOWLOCATION, 0); 
+curl_setopt ($f4, CURLOPT_RETURNTRANSFER, 1); 
+curl_setopt ($f4, CURLOPT_COOKIEJAR, $cookie);
+curl_setopt ($f4, CURLOPT_COOKIEFILE, $cookie); 
+curl_setopt ($f4, CURLOPT_REFERER, NONA_FETCH_URL); 
+
+curl_setopt ($f4, CURLOPT_POSTFIELDS, $f4_p); 
+curl_setopt ($f4, CURLOPT_POST, 1); 
+$f4_result = curl_exec ($f4); 
+
+file_put_contents($f4_svn, $f4_result, LOCK_EX);
+
+$f5 = curl_init(); 
+curl_setopt ($f5, CURLOPT_URL, NONA_FETCH_URL); 
+curl_setopt ($f5, CURLOPT_SSL_VERIFYPEER, FALSE); 
+curl_setopt ($f5, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"); 
+curl_setopt ($f5, CURLOPT_TIMEOUT, 60); 
+curl_setopt ($f5, CURLOPT_FOLLOWLOCATION, 0); 
+curl_setopt ($f5, CURLOPT_RETURNTRANSFER, 1); 
+curl_setopt ($f5, CURLOPT_COOKIEJAR, $cookie);
+curl_setopt ($f5, CURLOPT_COOKIEFILE, $cookie); 
+curl_setopt ($f5, CURLOPT_REFERER, NONA_FETCH_URL); 
+
+curl_setopt ($f5, CURLOPT_POSTFIELDS, $f5_p); 
+curl_setopt ($f5, CURLOPT_POST, 1); 
+$f5_result = curl_exec ($f5); 
+
+file_put_contents($f5_svn, $f5_result, LOCK_EX);
+
+$f6 = curl_init(); 
+curl_setopt ($f6, CURLOPT_URL, NONA_FETCH_URL); 
+curl_setopt ($f6, CURLOPT_SSL_VERIFYPEER, FALSE); 
+curl_setopt ($f6, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"); 
+curl_setopt ($f6, CURLOPT_TIMEOUT, 60); 
+curl_setopt ($f6, CURLOPT_FOLLOWLOCATION, 0); 
+curl_setopt ($f6, CURLOPT_RETURNTRANSFER, 1); 
+curl_setopt ($f6, CURLOPT_COOKIEJAR, $cookie);
+curl_setopt ($f6, CURLOPT_COOKIEFILE, $cookie); 
+curl_setopt ($f6, CURLOPT_REFERER, NONA_FETCH_URL); 
+
+curl_setopt ($f6, CURLOPT_POSTFIELDS, $f6_p); 
+curl_setopt ($f6, CURLOPT_POST, 1); 
+$f6_result = curl_exec ($f6); 
+
+file_put_contents($f6_svn, $f6_result, LOCK_EX);
+
+curl_close($f1);
+curl_close($f2);
+curl_close($f3);
+curl_close($f4);
+curl_close($f5);
+curl_close($f6);
+
+$f1_tt = "TRUNCATE TABLE " . $f1_t . "";
+mysqli_query($mysqli_history_nona,$f1_tt);
+
+$f2_tt = "TRUNCATE TABLE " . $f2_t . "";
+mysqli_query($mysqli_history_nona,$f2_tt);
+
+$f3_tt = "TRUNCATE TABLE " . $f3_t . "";
+mysqli_query($mysqli_history_nona,$f3_tt);
+
+$f4_tt = "TRUNCATE TABLE " . $f4_t . "";
+mysqli_query($mysqli_history_nona,$f4_tt);
+
+$f5_tt = "TRUNCATE TABLE " . $f5_t . "";
+mysqli_query($mysqli_history_nona,$f5_tt);
+
+$f6_tt = "TRUNCATE TABLE " . $f6_t . "";
+mysqli_query($mysqli_history_nona,$f6_tt);
+
+sleep(1);
+
+
+
+$f1_lt = "
+LOAD DATA INFILE '" . $f1_f . "'
+INTO TABLE " . $f1_t . " 
+ FIELDS TERMINATED BY ';' 
+ OPTIONALLY ENCLOSED BY '\"'
+ LINES TERMINATED BY '\n'
+ IGNORE 2 LINES
+ (@dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, TROUBLE_NO, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy)";
+mysqli_query($mysqli_history_nona,$f1_lt);
+
+$f2_lt = "
+LOAD DATA INFILE '" . $f2_f . "'
+INTO TABLE " . $f2_t . "  FIELDS TERMINATED BY ';' 
+ OPTIONALLY ENCLOSED BY '\"'
+ LINES TERMINATED BY '\n'
+ IGNORE 2 LINES
+ (@dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, TROUBLE_NO, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy)
+";
+mysqli_query($mysqli_history_nona,$f2_lt);
+
+$f3_lt = "
+LOAD DATA INFILE '" . $f3_f . "'
+INTO TABLE " . $f3_t . " 
+ FIELDS TERMINATED BY ';' 
+ OPTIONALLY ENCLOSED BY '\"'
+ LINES TERMINATED BY '\n'
+ IGNORE 2 LINES
+ (@dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, TROUBLE_NO, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy)
+";
+mysqli_query($mysqli_history_nona,$f3_lt);
+
+$f4_lt = "
+LOAD DATA INFILE '" . $f4_f . "'
+INTO TABLE " . $f4_t . " 
+ FIELDS TERMINATED BY ';' 
+ OPTIONALLY ENCLOSED BY '\"'
+ LINES TERMINATED BY '\n'
+ IGNORE 2 LINES
+ (@dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, TROUBLE_NO, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy)
+";
+mysqli_query($mysqli_history_nona,$f4_lt);
+
+$f5_lt = "
+LOAD DATA INFILE '" . $f5_f . "'
+INTO TABLE " . $f5_t . "  FIELDS TERMINATED BY ';' 
+ OPTIONALLY ENCLOSED BY '\"'
+ LINES TERMINATED BY '\n'
+ IGNORE 2 LINES
+ (@dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, TROUBLE_NO, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy)
+";
+mysqli_query($mysqli_history_nona,$f5_lt);
+
+$f6_lt = "
+LOAD DATA INFILE '" . $f6_f . "'
+INTO TABLE " . $f6_t . "  FIELDS TERMINATED BY ';' 
+ OPTIONALLY ENCLOSED BY '\"'
+ LINES TERMINATED BY '\n'
+ IGNORE 2 LINES
+ (@dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, TROUBLE_NO, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy, @dummy)
+";
+mysqli_query($mysqli_history_nona,$f6_lt);
+
+$f6_cmdffilter = "
+UPDATE nonatero, cmdf_plg_view SET nonatero.CMDF_RL = cmdf_plg_view.CMDF WHERE nonatero.ND_TELP = cmdf_plg_view.ND
+";
+mysqli_query($mysqli_history_nona,$f6_cmdffilter);
+
+$f6_dropoprt = "
+TRUNCATE point_flg_acc"
+;
+mysqli_query($mysqli_history_nona,$f6_dropoprt);
+
+$f6_oprt = "
+REPLACE INTO point_flg_acc (GAUL30_BACK, LAPUL, TROUBLE_NO, JAM, HARI, CHANNEL) SELECT GAUL30_BACK, LAPUL, TROUBLE_NO, JAM, HARI, CHANNEL FROM nonatero"
+;
+mysqli_query($mysqli_history_nona,$f6_oprt);
+
+$f6_ut = "
+UPDATE point_flg_acc, nona_plg_hc SET point_flg_acc.hardcom = 1 WHERE point_flg_acc.TROUBLE_NO = nona_plg_hc.TROUBLE_NO
+";
+mysqli_query($mysqli_history_nona,$f6_ut);
+
+$f6_ut2 = "
+UPDATE nonatero.point_flg_acc, nonatero.nona_plg_slg SET nonatero.point_flg_acc.TIPE_CUST = nonatero.nona_plg_slg.TIPE_CUST, nonatero.point_flg_acc.SLG = nonatero.nona_plg_slg.SLG WHERE nonatero.point_flg_acc.TROUBLE_NO = nonatero.nona_plg_slg.TROUBLE_NO";
+mysqli_query($mysqli_history_nona, $f6_ut2);
+
+$f6_ut3 = "
+update point_flg_acc set GGU = CASE WHEN HARI > 3 AND HARI < 8 THEN 1 WHEN HARI > 7 AND HARI < 16 THEN 2 WHEN HARI > 15 AND HARI < 22 THEN 3 WHEN HARI > 21 AND HARI < 31 THEN 4 WHEN HARI > 30 THEN 5 END";
+mysqli_query($mysqli_history_nona, $f6_ut3);
+
+$f6_ut4 = "
+update point_flg_acc 
+set SLG_F = CASE 
+WHEN SLG > JAM THEN 1
+WHEN SLG < JAM THEN 0
+END
+";
+mysqli_query($mysqli_history_nona, $f6_ut4);
+
+$f6_ut5 = "
+update point_flg_acc 
+set INDI_F = CASE 
+WHEN CHANNEL = 'MY INDIHOME' THEN 1
+END
+";
+mysqli_query($mysqli_history_nona, $f6_ut5);
+
+$f6_cu5 = "
+call nona_upoin
+";
+mysqli_query($mysqli_history_nona, $f6_cu5);
+
+mysqli_close($mysqli);
+mysqli_close($mysqli_history_rock);
+mysqli_close($mysqli_history_nona);
+?>

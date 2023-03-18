@@ -1,0 +1,9 @@
+                //    <td>" . $row["ORDER_DEWA_P"] . "</td>
+                    <td>" . $row["MY_INDIHOME_P"] . "</td>
+                    <td>" . $row["RIHANA_P"] . "</td>
+                    <td>" . $row["GAUL30_BACK_P"] . "</td>
+                    <td>" . $row["SLG_P"] . "</td>
+                    <td>" . $row["GGU_TUA_P"] . "</td>
+                    <td>" . $row["PLS_P"] . "</td>
+                    <td>" . $row["HCM_P"] . "</td>
+                    <td>" . $row["LAPUL_P"] . "</td> //

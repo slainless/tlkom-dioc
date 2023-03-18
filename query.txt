@@ -1,0 +1,222 @@
+UPDATE CMDF
+
+UPDATE nonatero join (select cmdf_plg.CMDF, cmdf_plg.ND from cmdf_plg) AS CMDF_TABLE SET nonatero.CMDF_RL = CMDF_TABLE.CMDF WHERE nonatero.ND_TELP = CMDF_TABLE.ND or nonatero.ND_INT = CMDF_TABLE.ND
+
+UPDATE nonatero join (select * from cmdf_sto) AS CMDF_TABLE SET nonatero.STO = CMDF_TABLE.STO, nonatero.MITRA = CMDF_TABLE.MITRA, nonatero.SEGMEN = CMDF_TABLE.SEGMEN, nonatero.JENIS = CMDF_TABLE.JENIS WHERE nonatero.CMDF = CMDF_TABLE.CMDF
+
+UPDATE nonatero join (select cmdf_plg.CMDF, cmdf_plg.ND from cmdf_plg) AS CMDF_TABLE ON CMDF_TABLE.ND = nonatero.ND_TELP OR CMDF_TABLE.ND = nonatero.ND_INT SET nonatero.CMDF_RL = CMDF_TABLE.CMDF WHERE CMDF_TABLE.ND IN (nonatero.ND_TELP, nonatero.ND_INT)
+
+UPDATE nonatero join (select cmdf_plg.CMDF, cmdf_plg.ND from cmdf_plg) AS CMDF_TABLE ON CMDF_TABLE.ND = nonatero.ND_TELP OR CMDF_TABLE.ND = nonatero.ND_INT SET nonatero.CMDF_RL = CMDF_TABLE.CMDF
+
+    echo path_definer.php."<br>";
+
+    echo $p_conf."<br>";
+    echo $p_conn."<br>";
+    echo $p_incl."login/function.php"."<br>";
+
+    echo $webframe."webf_function.php"."<br>";
+
+BY
+JENIS = 2 = DONUT
+STO TOP 5 = BAR
+TIPE_CUST =  DONUT 
+SEGMEN = DONUT
+MITRA = DONUT
+EMOSI PLG = DONUT
+PRODUK GGN = LINE AREA
+TIPE_TIKET = LINE
+
+
+SELECT COUNT(TROUBLE_NO), JENIS FROM `nonatero` WHERE JENIS IN ('FTTH', 'NON-FTTH') GROUP BY JENIS
+
+SELECT COUNT(TROUBLE_NO) AS COUNT, STO FROM `nonatero` GROUP BY STO ORDER BY COUNT(TROUBLE_NO) DESC
+
+chart1.on('draw', function() 
+  if (!addedEvents) {
+    $('.ct-slice-donut').on('mouseenter', function() {
+      $('#tooltip').html('<b>Selected Value: </b>' + $(this).attr('ct:value'));
+    });
+
+    $('.ct-bar').on('mouseout', function() {
+      $('#tooltip').html('<b>Selected Value:</b>');
+    });
+  }
+});
+
+var addedEvents = false;
+chart1.on('draw', function() {
+  if (!addedEvents) {
+    var valuestate;
+    var metastate;
+    
+    $('.ct-slice-donut').on('mouseenter', function() {
+            var parent = $(this).closest(".ct-chart");
+            var value = $(this).attr("ct:value");
+            var meta = $(this).attr("ct:meta");
+
+            var descp = parent.children(".ct-fill-donut-label");
+
+            valuestate = descp.find(".chart-value").text();
+            metastate = descp.find(".chart-info").text();
+            descp.find(".chart-value").text(value);
+            descp.find(".chart-info").text(meta);
+    });
+
+    $('.ct-slice-donut').on('mouseleave', function() {
+            var parent = $(this).closest(".ct-chart");
+            var value = $(this).attr("ct:value");
+
+            var descp = parent.children(".ct-fill-donut-label");
+
+            descp.find(".chart-value").text(valuestate);
+            descp.find(".chart-info").text(metastate);
+    });
+  }
+});
+
+$( ".ct-slice-donut" ).hover( 
+        function() {
+            var parent = $(this).closest(".ct-chart");
+            var value = $(this).attr("ct:value");
+            var meta = $(this).attr("ct:meta");
+
+            var descp = parent.children(".ct-fill-donut-label");
+
+            valuestate = descp.find(".chart-value").text();
+            metastate = descp.find(".chart-info").text();
+            descp.find(".chart-value").text(value);
+            descp.find(".chart-info").text(meta);
+        }, 
+        function() {
+            var parent = $(this).closest(".ct-chart");
+            var value = $(this).attr("ct:value");
+
+            var descp = parent.children(".ct-fill-donut-label");
+
+            descp.find(".chart-value").text(valuestate);
+            descp.find(".chart-info").text(metastate);
+        });
+
+(SELECT COUNT(TROUBLE_NO) AS COUNT, TIPE_CUST, DATE_FORMAT(TANGGAL, '%Y-%m-%e') AS TANGGAL FROM nona_history WHERE TIPE_CUST = 'SILVER' GROUP BY TIPE_CUST, DATE(TANGGAL) ORDER BY DATE(TANGGAL) DESC LIMIT 6)
+        UNION ALL 
+        (SELECT COUNT(TROUBLE_NO) AS COUNT, TIPE_CUST, DATE_FORMAT(TANGGAL, '%Y-%m-%e') AS TANGGAL FROM nona_history WHERE TIPE_CUST = 'TITANIUM/GOLD' GROUP BY TIPE_CUST, DATE(TANGGAL) ORDER BY DATE(TANGGAL) DESC LIMIT 6)
+        UNION ALL 
+        (SELECT COUNT(TROUBLE_NO) AS COUNT, TIPE_CUST, DATE_FORMAT(TANGGAL, '%Y-%m-%e') AS TANGGAL FROM nona_history WHERE TIPE_CUST = 'PLATINUM' GROUP BY TIPE_CUST, DATE(TANGGAL) ORDER BY DATE(TANGGAL) DESC LIMIT 6)
+        UNION ALL 
+        (SELECT COUNT(TROUBLE_NO) AS COUNT, TIPE_CUST, DATE_FORMAT(TANGGAL, '%Y-%m-%e') AS TANGGAL FROM nona_history WHERE TIPE_CUST = 'BUSINESS' GROUP BY TIPE_CUST, DATE(TANGGAL) ORDER BY DATE(TANGGAL) DESC LIMIT 6)
+        UNION ALL 
+        (SELECT COUNT(TROUBLE_NO) AS COUNT, TIPE_CUST, DATE_FORMAT(TANGGAL, '%Y-%m-%e') AS TANGGAL FROM nona_history WHERE TIPE_CUST = 'ENTERPRISE' GROUP BY TIPE_CUST, DATE(TANGGAL) ORDER BY DATE(TANGGAL) DESC LIMIT 6)
+
+(SELECT * FROM (SELECT COUNT(TROUBLE_NO) AS COUNT, PRODUK_GGN, DATE_FORMAT(TANGGAL, '%Y-%m-%e') AS TANGGAL FROM nona_history WHERE PRODUK_GGN = 'INTERNET' GROUP BY PRODUK_GGN, DATE(TANGGAL) ORDER BY DATE(TANGGAL) DESC LIMIT 6) AS TEMP_TABLE ORDER BY DATE(TEMP_TABLE.TANGGAL) ASC)
+        UNION ALL 
+        (SELECT * FROM (SELECT COUNT(TROUBLE_NO) AS COUNT, PRODUK_GGN, DATE_FORMAT(TANGGAL, '%Y-%m-%e') AS TANGGAL FROM nona_history WHERE PRODUK_GGN = 'IPTV' GROUP BY PRODUK_GGN, DATE(TANGGAL) ORDER BY DATE(TANGGAL) DESC LIMIT 6) AS TEMP_TABLE ORDER BY DATE(TEMP_TABLE.TANGGAL) ASC)
+        UNION ALL 
+        (SELECT * FROM (SELECT COUNT(TROUBLE_NO) AS COUNT, PRODUK_GGN, DATE_FORMAT(TANGGAL, '%Y-%m-%e') AS TANGGAL FROM nona_history WHERE PRODUK_GGN = 'TELEPON' GROUP BY PRODUK_GGN, DATE(TANGGAL) ORDER BY DATE(TANGGAL) DESC LIMIT 6) AS TEMP_TABLE ORDER BY DATE(TEMP_TABLE.TANGGAL) ASC)
+
+SELECT * FROM (SELECT COUNT(TROUBLE_NO) AS COUNT, PRODUK_GGN, DATE_FORMAT(TANGGAL, '%Y-%m-%e') AS TANGGAL FROM nona_history WHERE PRODUK_GGN = 'INTERNET' GROUP BY PRODUK_GGN, DATE(TANGGAL) ORDER BY DATE(TANGGAL) DESC LIMIT 6) AS TEMP_TABLE ORDER BY DATE(TEMP_TABLE.TANGGAL) ASC
+
+TO DO LIST :
+
+TABEL KETERANGAN
+  - ND
+  - KETERANGAN
+  
+NONATERO CURRENT
+  ##### FILTER
+  - paket > keterangan
+  ##### FILTER BY LOKER
+  - DOWNLOAD DATA
+  
+ORDER DEWA
+  ##### MESSAGE NOTIF JIKA DI INPUT BARU
+  ##### COLOR
+
+CMDF
+	- BUG ND TELP
+
+PLASA
+	- TROUBLE NO > PENTING
+	- ND > PENTING
+	- CSR > PENTING
+	- NAMA PENGIRIM - HILANGKAN
+
+
+# VIP PROSES -> SERVER
+# CMDF.PHP
+# CMDFPROSES
+DOWNLOAD
+CURRENT
+
+SELECT * 
+    FROM nonatero LEFT OUTER JOIN (SELECT * FROM nona_keterangan WHERE EXPIRE_DATE >= CURDATE()) AS KET ON nonatero.ND_TELP = KET.ND OR nonatero.ND_INT = KET.ND
+
+SELECT * FROM nonatero LEFT OUTER JOIN ".$t_nona_ket." ON nonatero.ND_TELP = ".$t_nona_ket.".ND OR nonatero.ND_INT = ".$t_nona_ket.".ND WHERE nonatero.TIPE_CUST = 'BUSINESS'
+
+SELECT * FROM nona_keterangan WHERE EXPIRE_DATE >= CURDATE()
+
+<div id="upload-drop" class="uk-placeholder uk-text-center">
+                                <i class="uk-icon-cloud-upload uk-icon-medium uk-text-muted uk-margin-small-right"></i> Attach binaries by dropping them here or <a class="uk-form-file">selecting one<input id="upload-select" type="file"></a>.
+                            </div>
+
+<div id="progressbar" class="uk-progress uk-hidden">
+                                <div class="uk-progress-bar" style="width: 100%;">100%</div>
+                            </div>
+
+<?php
+$target_dir = "uploads/";
+$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+$uploadOk = 1;
+$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+// Check if image file is a actual image or fake image
+if(isset($_POST["submit"])) {
+    $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+    if($check !== false) {
+        echo "File is an image - " . $check["mime"] . ".";
+        $uploadOk = 1;
+    } else {
+        echo "File is not an image.";
+        $uploadOk = 0;
+    }
+}
+// Check if file already exists
+if (file_exists($target_file)) {
+    echo "Sorry, file already exists.";
+    $uploadOk = 0;
+}
+// Check file size
+if ($_FILES["fileToUpload"]["size"] > 500000) {
+    echo "Sorry, your file is too large.";
+    $uploadOk = 0;
+}
+// Allow certain file formats
+if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+&& $imageFileType != "gif" ) {
+    echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+    $uploadOk = 0;
+}
+// Check if $uploadOk is set to 0 by an error
+if ($uploadOk == 0) {
+    echo "Sorry, your file was not uploaded.";
+// if everything is ok, try to upload file
+} else {
+    if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+        echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+    } else {
+        echo "Sorry, there was an error uploading your file.";
+    }
+}
+?>
+
+(SELECT COUNT(*) AS 'COUNT', '< 1' AS HARI FROM nonatero WHERE JAM < 24 LIMIT 1) 
+UNION ALL
+(SELECT COUNT(*) AS 'COUNT', '1-2' AS HARI FROM nonatero WHERE JAM >= 24 AND JAM < 72 LIMIT 1)
+UNION ALL
+(SELECT COUNT(*) AS 'COUNT', '2-3' AS HARI FROM nonatero WHERE JAM >= 48 AND JAM < 96 LIMIT 1)
+UNION ALL
+(SELECT COUNT(*) AS 'COUNT', '4-7' AS HARI FROM nonatero WHERE JAM >= 96 AND JAM < 192 LIMIT 1)
+UNION ALL
+(SELECT COUNT(*) AS 'COUNT', '8-15' AS HARI FROM nonatero WHERE JAM >= 192 AND JAM < 384 LIMIT 1)
+UNION ALL
+(SELECT COUNT(*) AS 'COUNT', '16-30' AS HARI FROM nonatero WHERE JAM >= 384 AND JAM < 744 LIMIT 1)
+UNION ALL
+(SELECT COUNT(*) AS 'COUNT', '> 30' AS HARI FROM nonatero WHERE JAM >= 744 LIMIT 1)

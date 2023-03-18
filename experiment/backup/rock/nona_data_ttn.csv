@@ -1,0 +1,5 @@
+CONN_OK
+<br />
+<b>Warning</b>:  fputcsv() expects parameter 2 to be array, null given in <b>/home/web_admin/ccmt/file_down_mart_nona_csv_new.php</b> on line <b>35</b><br />
+<br />
+<b>Warning</b>:  oci_fetch_array(): ORA-24338: statement handle not executed in <b>/home/web_admin/ccmt/file_down_mart_nona_csv_new.php</b> on line <b>37</b><br />

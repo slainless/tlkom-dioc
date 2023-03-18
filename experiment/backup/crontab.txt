@@ -1,0 +1,1 @@
+*/1 * * * * curl.exe -o temp.txt http://localhost/database/dashboard/opcurl_login.php
